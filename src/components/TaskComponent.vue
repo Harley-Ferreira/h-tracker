@@ -1,8 +1,11 @@
 <template>
     <Box>
         <div class="columns">
-            <div class="column is-7">
-                {{task.description || 'Task without description'}}
+            <div class="column is-4">
+                {{ task.description || 'Task without description' }}
+            </div>
+            <div class="column is-3">
+                {{ task.project?.name || 'N/D' }}
             </div>
             <div class="column">
                 <StopWatch :timeInSeconds="task.durationInSeconds"/>
