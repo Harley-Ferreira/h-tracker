@@ -1,46 +1,46 @@
-import { ADD_PROJECT, EDIT_PROJECT, DELETE_PROJECT, NOTIFY } from './mutatios-type';
-import IProject from "@/interfaces/IProject";
+import { project } from './modules/project/index';
+import { TaskState, task } from './modules/task/index';
+import { NOTIFY } from './mutatios-type';
 import { InjectionKey } from "vue";
 import { createStore, Store, useStore as vuexUseStore } from "vuex";
 import { INotification } from '@/interfaces/INotification';
+import { ProjectState } from './modules/project';
 
-interface State {
-    projectList: IProject[];
+export interface State {
+    task: TaskState;
     notifications: INotification[];
+    project: ProjectState;
 }
 
 export const key: InjectionKey<Store<State>> = Symbol();
 
 export const store = createStore<State>({
     state: {
-        projectList: [],
-        notifications: [] 
+        notifications: [],
+        project: {
+            projectList: [],
+        },
+        task: {
+            taskList: [],
+        },
     },
 
     mutations: {
-        [ADD_PROJECT](state, projectName: string) {
-            const project = {
-                id: new Date().toISOString(),
-                name: projectName,
-            } as IProject;
-            state.projectList.push(project);
-        },
-        [EDIT_PROJECT](state, project: IProject) {
-            const index = state.projectList.findIndex(p => p.id == project.id)
-            state.projectList[index] = project;
-        },
-        [DELETE_PROJECT](state, id: string) {
-            state.projectList = state.projectList.filter(p => p.id !=  id);
-        },
         [NOTIFY](state, newNotification: INotification) {
             newNotification.id = new Date().getTime();
             state.notifications.push(newNotification);
             setTimeout(() => {
                 state.notifications = state.notifications.filter(n => n.id != newNotification.id);    
             }, 2000)
-        }
+        },
+    },
+
+    modules: {
+        project,
+        task,
     }
-})
+    
+})  
 
 export function useStore(): Store<State> {
     return vuexUseStore(key);

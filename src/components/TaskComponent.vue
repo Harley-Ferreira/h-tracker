@@ -1,6 +1,6 @@
 <template>
     <Box>
-        <div class="columns">
+        <div class="columns selectable" @click="clickedTask">
             <div class="column is-4">
                 {{ task.description || 'Task without description' }}
             </div>
@@ -22,7 +22,20 @@ import Box from "./BoxComponent.vue";
 
 export default defineComponent({
     name: 'TaskComponent',
-    
+
+    components: {
+        StopWatch,
+        Box,
+    },
+
+    emits: ['theClickedTask'],
+
+    methods: {
+        clickedTask(): void {
+            this.$emit('theClickedTask', this.task);
+        }
+    },
+
     props: {
         task: {
             type: Object as PropType<ITask>,
@@ -30,9 +43,11 @@ export default defineComponent({
         },
     },
 
-    components: {
-        StopWatch,
-        Box,
-    }
 });
 </script>
+
+<style scoped>
+    .selectable {
+        cursor: pointer;
+    }
+</style>

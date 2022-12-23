@@ -13,56 +13,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { useStore } from "@/store";
-import { ADD_PROJECT, EDIT_PROJECT } from "@/store/mutatios-type";
+import { POST_PROJECT, PUT_PROJECT } from "@/store/actions-type";
 import { NotificationType } from "@/interfaces/INotification";
 import useNotifier from "@/hooks/notifier"
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "FormProject",
-
-  data () {
-    return {
-      projectName: '',
-    }
-  },
-
-  mounted() {
-    if (this.id) {
-      const project = this.store.state.projectList.find(p => p.id == this.id)
-      this.projectName = project?.name || ''
-    }
-  },
-
-  methods: {
-    save (): void {
-      if (this.id) {
-        this.store.commit(EDIT_PROJECT, {
-          id: this.id,
-          name: this.projectName
-        })
-
-        this.notify(
-          NotificationType.SUCCESS, 
-          'Project successfuly edited!',
-          'Your project is already available.'
-        )
-      } else {
-        this.store.commit(ADD_PROJECT, this.projectName)
-        
-        this.notify(
-          NotificationType.SUCCESS, 
-          'Project successfuly created!',
-          'Your project is already available.'
-        )
-      }
-      this.projectName = '';
-      this.$router.push('/projects')
-    },
-
-    
-  },
 
   props: {
     id: {
@@ -70,13 +29,49 @@ export default defineComponent({
     }
   },
 
-  setup () {
+  setup (props) {
+    const router = useRouter();
+
     const store = useStore();
     const { notify } = useNotifier()
-    return {
-      store,
-      notify,
+
+    const projectName = ref("")
+
+    if (props.id) {
+      const project = store.state.project.projectList.find(p => p.id == props.id);
+      projectName.value = project?.name || ''
     }
-  }
+
+    const save = (): void => {
+      if (props.id) {
+        store.dispatch(PUT_PROJECT, {
+          id: props.id,
+          name: projectName.value
+        }).then(() => {
+          notify(
+            NotificationType.SUCCESS, 
+            'Project successfuly edited!',
+            'Your project is already available.'
+          );
+        })
+      } else {
+        store.dispatch(POST_PROJECT, projectName.value)
+        .then(() => {
+          notify(
+            NotificationType.SUCCESS, 
+            'Project successfuly created!',
+            'Your project is already available.'
+          )
+        }); 
+      }
+      projectName.value = "";
+      router.push('/projects')
+    }
+
+    return {
+      projectName,
+      save,
+    };
+  },
 });
 </script>

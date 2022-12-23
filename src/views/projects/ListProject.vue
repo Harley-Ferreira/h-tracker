@@ -20,7 +20,7 @@
             <td>{{ project.id }}</td>
             <td>{{ project.name }}</td>
             <td>
-            <router-link :to="`/projects/${project.id}`" class="button">
+            <router-link :to="`/projects/${project.id}`" class="button" style="margin: 5px;">
                 <span class="icon is-small">
                   <i class="fas fa-pencil-alt"></i>
                 </span>
@@ -40,7 +40,7 @@
   <script lang="ts">
   import { computed, defineComponent } from "vue";
   import { useStore } from "@/store";
-import { DELETE_PROJECT } from "@/store/mutatios-type";
+  import { DELETE_PROJECT, GET_PROJECT } from "@/store/actions-type";
   
   export default defineComponent({
     
@@ -48,15 +48,16 @@ import { DELETE_PROJECT } from "@/store/mutatios-type";
     
     methods: {
       exclude(id: string): void {
-        this.store.commit(DELETE_PROJECT, id)
+        this.store.dispatch(DELETE_PROJECT, id)
       }
     },
 
     setup () {
       const store = useStore();
+      store.dispatch(GET_PROJECT);
       return {
-        projectList: computed(() => store.state.projectList),
-        store
+        projectList: computed(() => store.state.project.projectList),
+        store,
       }
     }
   });
